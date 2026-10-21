@@ -5222,6 +5222,15 @@ folder-hook work "set sort=threads"
           in files used by more than one user (e.g., the system neomuttrc).
         </para>
         <para>
+          Backticks in <emphasis>sequence</emphasis> are run once, when the
+          config file is read. To run a command every time the macro is
+          executed, use <emphasis>&lt;run:command&gt;</emphasis>. It is replaced
+          by the first line of the command's output, e.g.
+          <literal>macro index ,d '&lt;change-folder&gt;=archive/&lt;run:date +%Y&gt;&lt;enter&gt;'</literal>
+          Use <literal>\&gt;</literal> for a literal <quote>&gt;</quote> in the
+          command (<literal>\\&gt;</literal> inside double quotes).
+        </para>
+        <para>
           Optionally you can specify a descriptive text after
           <emphasis>sequence</emphasis>, which is shown in the help screens if
           they contain a description.

@@ -87,4 +87,23 @@ void test_mutt_push_macro_repeated(void)
     TEST_CHECK_NUM_EQ(ev->ch, (unsigned char) expected[i]);
   }
   TEST_CHECK_NUM_EQ(ARRAY_SIZE(&mod_data->macro_events), 0);
+
+  // <run:cmd> is replaced by the command's output each time the macro runs
+  char macro3[] = "a<run:echo bc>d<run:true>e<run:echo f \\>/dev/null>";
+  mutt_push_macro_repeated(macro3, 2);
+  const char expected3[] = "abcdeabcde";
+  TEST_CHECK_NUM_EQ(ARRAY_SIZE(&mod_data->macro_events), 10);
+  for (int i = 0; i < 10; i++)
+  {
+    struct KeyEvent *ev = array_pop(&mod_data->macro_events);
+    TEST_CHECK(ev != NULL);
+    TEST_CHECK_NUM_EQ(ev->ch, (unsigned char) expected3[i]);
+  }
+  mutt_flushinp();
+
+  // An unterminated <run: is left as typed
+  char macro4[] = "<run:x";
+  mutt_push_macro_repeated(macro4, 0);
+  TEST_CHECK_NUM_EQ(ARRAY_SIZE(&mod_data->macro_events), 6);
+  mutt_flushinp();
 }
