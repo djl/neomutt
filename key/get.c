@@ -51,6 +51,44 @@
 static const int MaxKeyLoop = 64;
 
 /**
+ * macro_expand_date - Expand the `<date:fmt>` strings in a macro
+ * @param macro Macro string
+ * @param buf   Buffer for the result
+ *
+ * Each `<date:fmt>` is replaced by the current date, formatted by strftime(3).
+ * Unlike backticks, these are expanded every time the macro is executed.
+ * Use `\>` for a literal `>` in the format.
+ */
+static void macro_expand_date(const char *macro, struct Buffer *buf)
+{
+  buf_reset(buf);
+  struct Buffer *fmt = buf_pool_get();
+  const char *start = NULL;
+  while ((start = strstr(macro, "<date:")))
+  {
+    buf_reset(fmt);
+    const char *p = start + 6;
+    for (; *p && (*p != '>'); p++)
+    {
+      if ((p[0] == '\\') && (p[1] == '>'))
+        p++;
+      buf_addch(fmt, *p);
+    }
+    if (*p != '>')
+      break; // unterminated: leave it as typed
+
+    buf_addstr_n(buf, macro, start - macro);
+    macro = p + 1;
+
+    char date[256] = { 0 };
+    mutt_date_localtime_format(date, sizeof(date), buf_string(fmt), mutt_date_now());
+    buf_addstr(buf, date);
+  }
+  buf_addstr(buf, macro);
+  buf_pool_release(&fmt);
+}
+
+/**
  * mutt_push_macro_repeated - Push a macro string into the input queue, optionally repeated
  * @param macro Macro string to expand
  * @param count Number of times to repeat (0 or 1 means once)
@@ -65,8 +103,13 @@ void mutt_push_macro_repeated(char *macro, int count)
   if ((c_macro_repeat_max > 0) && (repeat > c_macro_repeat_max))
     repeat = c_macro_repeat_max;
 
+  struct Buffer *buf = buf_pool_get();
   for (int i = 0; i < repeat; i++)
-    generic_tokenize_push_string(macro);
+  {
+    macro_expand_date(macro, buf);
+    generic_tokenize_push_string(buf->data);
+  }
+  buf_pool_release(&buf);
 }
 
 // It's not possible to unget more than one char under some curses libs,

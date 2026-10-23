@@ -5222,6 +5222,16 @@ folder-hook work "set sort=threads"
           in files used by more than one user (e.g., the system neomuttrc).
         </para>
         <para>
+          Backticks in <emphasis>sequence</emphasis> are run once, when the
+          config file is read. To insert the current date every time the macro
+          is executed, use <emphasis>&lt;date:format&gt;</emphasis>, where
+          <emphasis>format</emphasis> is a <literal>strftime(3)</literal>
+          format, e.g.
+          <literal>macro index ,d '&lt;save-message&gt;=archive/&lt;date:%Y/%m&gt;&lt;enter&gt;'</literal>
+          Use <literal>\&gt;</literal> for a literal <quote>&gt;</quote> in the
+          format (<literal>\\&gt;</literal> inside double quotes).
+        </para>
+        <para>
           Optionally you can specify a descriptive text after
           <emphasis>sequence</emphasis>, which is shown in the help screens if
           they contain a description.
