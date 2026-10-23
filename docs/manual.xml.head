@@ -5227,8 +5227,13 @@ folder-hook work "set sort=threads"
           executed, use <emphasis>&lt;run:command&gt;</emphasis>. It is replaced
           by the first line of the command's output, e.g.
           <literal>macro index ,d '&lt;change-folder&gt;=archive/&lt;run:date +%Y&gt;&lt;enter&gt;'</literal>
+          To insert the current date, use
+          <emphasis>&lt;date:format&gt;</emphasis>, where
+          <emphasis>format</emphasis> is a <literal>strftime(3)</literal>
+          format, e.g.
+          <literal>macro index ,d '&lt;save-message&gt;=archive/&lt;date:%Y/%m&gt;&lt;enter&gt;'</literal>
           Use <literal>\&gt;</literal> for a literal <quote>&gt;</quote> in the
-          command (<literal>\\&gt;</literal> inside double quotes).
+          command or format (<literal>\\&gt;</literal> inside double quotes).
         </para>
         <para>
           Optionally you can specify a descriptive text after

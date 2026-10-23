@@ -106,4 +106,23 @@ void test_mutt_push_macro_repeated(void)
   mutt_push_macro_repeated(macro4, 0);
   TEST_CHECK_NUM_EQ(ARRAY_SIZE(&mod_data->macro_events), 6);
   mutt_flushinp();
+
+  // <date:fmt> is replaced by the current date each time the macro runs
+  char macro5[] = "a<date:%%>b<date:x\\>y>c";
+  mutt_push_macro_repeated(macro5, 2);
+  const char expected5[] = "a%bx>yca%bx>yc";
+  TEST_CHECK_NUM_EQ(ARRAY_SIZE(&mod_data->macro_events), 14);
+  for (int i = 0; i < 14; i++)
+  {
+    struct KeyEvent *ev = array_pop(&mod_data->macro_events);
+    TEST_CHECK(ev != NULL);
+    TEST_CHECK_NUM_EQ(ev->ch, (unsigned char) expected5[i]);
+  }
+  mutt_flushinp();
+
+  // An unterminated <date: is left as typed
+  char macro6[] = "<date:x";
+  mutt_push_macro_repeated(macro6, 0);
+  TEST_CHECK_NUM_EQ(ARRAY_SIZE(&mod_data->macro_events), 7);
+  mutt_flushinp();
 }
